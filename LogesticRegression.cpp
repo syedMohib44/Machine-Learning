@@ -16,8 +16,6 @@ bool custom_sort(double a, double b) /* this custom sort function is defined to
 }
 
 const uint epoch = 4;
-unordered_map<unsigned int, unsigned int[2]> &MinMaxPred;
-
 void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, unsigned int[2]> &MinMax)
 {
 
@@ -40,6 +38,7 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
     double b9 = 0;        // initializing b9
     double b10 = 0;       // initializing b10
     double b11 = 0;       // initializing b11
+    double b12 = 0;
 
     double alpha = 0.01; // initializing our learning rate
     double e = 2.71828;
@@ -60,14 +59,16 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
     // performance = _performance;
     /*Training Phase*/
     double totalPopulation = 0;
-    for (int i = 0; i < dataDict.size() * epoch; i++)
+    for (int i = 0; i < (dataDict.size() / 2) * epoch; i++)
     {
         //Since there are 10 values in our dataset and we want to run for 4 epochs so total for loop run 40 times
-        int idx = i % dataDict.size(); //for accessing index after every epoch
+        int idx = i % (dataDict.size() / 2); //for accessing index after every epoch
         double normDemographic = (double)(dataDict[idx].GetDemographicScore() - MinMax[DEMOGRAPHIC_SCORE][0]) / (double)(MinMax[DEMOGRAPHIC_SCORE][1] - MinMax[DEMOGRAPHIC_SCORE][0]);
         double normCompetition = (double)(dataDict[idx].CompetitionScore() - MinMax[COMPETITION_SCORE][0]) / (double)(MinMax[COMPETITION_SCORE][1] - MinMax[COMPETITION_SCORE][0]);
         double normSpace = (double)(dataDict[idx].GetSpace() - MinMax[SPACE][0]) / (double)(MinMax[SPACE][1] - MinMax[SPACE][0]);
         double normClearence = (double)(dataDict[idx].ClearenceSpace() - MinMax[CLEARENCE_SPACE][0]) / (double)(MinMax[CLEARENCE_SPACE][1] - MinMax[CLEARENCE_SPACE][0]);
+        double normStaffs = (double)(dataDict[idx].GetStaffNumbers() - MinMax[STAFF_NUMBERS][0]) / (double)(MinMax[STAFF_NUMBERS][1] - MinMax[STAFF_NUMBERS][0]);
+        double normCompeteNum = (double)(dataDict[idx].CompetitionNumber() - MinMax[COMPETITION_NUM][0]) / (double)(MinMax[COMPETITION_NUM][1] - MinMax[COMPETITION_NUM][0]);
 
         // double population40Avg = dataDict[idx].Population_40().population / dataDict[idx].Population_40().distanceInMins;
         // double population30Avg = dataDict[idx].Population_30().population / dataDict[idx].Population_30().distanceInMins;
@@ -75,62 +76,55 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
         // double population10Avg = dataDict[idx].Population_10().population / dataDict[idx].Population_10().distanceInMins;
         totalPopulation = dataDict[idx].Population_40().population + dataDict[idx].Population_30().population + dataDict[idx].Population_20().population + dataDict[idx].Population_10().population;
 
-        double p = -(b0 + b1 * dataDict[idx].GetStaffNumbers() + b2 * normSpace + b3 * dataDict[idx].GetCarParking() + b4 * normDemographic +
-                     b5 * dataDict[idx].GetLocation() + b6 * (dataDict[idx].Population_40().population * 100) / totalPopulation +
-                     b7 * (dataDict[idx].Population_30().population * 100) / totalPopulation + b8 * (dataDict[idx].Population_20().population * 100) / totalPopulation +
-                     b9 * (dataDict[idx].Population_10().population * 100) / totalPopulation + b10 * normClearence + b11 * normCompetition);
+        double p = -(b0 + b1 * normStaffs + b2 * normSpace + b3 * dataDict[idx].GetCarParking() + b4 * normDemographic +
+                     b5 * dataDict[idx].GetLocation() + b6 * ((double)(dataDict[idx].Population_40().population / totalPopulation)) +
+                     b7 * ((double)(dataDict[idx].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[idx].Population_20().population / totalPopulation)) +
+                     b9 * ((double)(dataDict[idx].Population_10().population / totalPopulation)) + b10 * normClearence + b11 * normCompetition + b12 * normCompeteNum);
         //making the prediction
 
         double pred = 1.0 / (1.0 + pow(e, p)); //calculating final prediction applying sigmoid
         err = dataDict[idx].GetPerformance() - pred;
 
         // std::cout << err << std::endl;
-        b0 = b0 - alpha * err * pred * (1 - pred) * 1.0;                                                                //updating b0 (BIAS)
-        b1 = b1 + alpha * err * pred * (1 - pred) * dataDict[idx].GetStaffNumbers();                                    //updating b1
-        b2 = b2 + alpha * err * pred * (1 - pred) * normSpace;                                                          //updating b2
-        b3 = b3 + alpha * err * pred * (1 - pred) * dataDict[idx].GetCarParking();                                      //updating b1
-        b4 = b4 + alpha * err * pred * (1 - pred) * normDemographic;                                                    //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b5 = b5 + alpha * err * pred * (1 - pred) * dataDict[idx].GetLocation();                                        //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b6 = b6 + alpha * err * pred * (1 - pred) * (dataDict[idx].Population_40().population * 100) / totalPopulation; //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b7 = b7 + alpha * err * pred * (1 - pred) * (dataDict[idx].Population_30().population * 100) / totalPopulation; //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b8 = b8 + alpha * err * pred * (1 - pred) * (dataDict[idx].Population_20().population * 100) / totalPopulation; //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b9 = b9 + alpha * err * pred * (1 - pred) * (dataDict[idx].Population_10().population * 100) / totalPopulation; //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b10 = b10 + alpha * err * pred * (1 - pred) * normClearence;                                                    //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b11 = b11 + alpha * err * pred * (1 - pred) * normCompetition;                                                  //updating b2
-
+        b0 = b0 - alpha * err * pred * (1 - pred) * 1.0;                                                                  //updating b0 (BIAS)
+        b1 = b1 + alpha * err * pred * (1 - pred) * normStaffs;                                                           //updating b1
+        b2 = b2 + alpha * err * pred * (1 - pred) * normSpace;                                                            //updating b2
+        b3 = b3 + alpha * err * pred * (1 - pred) * dataDict[idx].GetCarParking();                                        //updating b1
+        b4 = b4 + alpha * err * pred * (1 - pred) * normDemographic;                                                      //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b5 = b5 + alpha * err * pred * (1 - pred) * dataDict[idx].GetLocation();                                          //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b6 = b6 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_40().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b7 = b7 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_30().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b8 = b8 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_20().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b9 = b9 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_10().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b10 = b10 + alpha * err * pred * (1 - pred) * normClearence;                                                      //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b11 = b11 - alpha * err * pred * (1 - pred) * normCompetition;                                                    //updating b2
+        b12 = b12 - alpha * err * pred * (1 - pred) * normCompeteNum;
         // cout << "B0=" << b0 << " "
         //      << "B1=" << b1 << " "
         //      << "B2=" << b2 << " error=" << err << endl; // printing values after every step
         error.push_back(err);
     }
     sort(error.begin(), error.end(), custom_sort); //custom sort based on absolute error difference
-                                                   // cout << "Final Values are: "
-                                                   //      << "B0=" << b0 << " " << endl
-                                                   //      << "B1=" << b1 << " " << endl
-                                                   //      << "B2=" << b2 << "B3=" << b3 << " " << endl
-                                                   //      << "B4=" << b4 << "B5=" << b5 << " " << endl
-                                                   //      << "B6=" << b6 << "B7=" << b7 << " " << endl
-                                                   //      << "B8=" << b8 << "B9=" << b9 << " " << endl
-                                                   //      << "B10=" << b10 << endl
-                                                   //      << "error=" << error[0] << endl;
-    // std::cout << b0 << " == " << b1 << " == " << b2 << " == " << b3 << " == " << b4 << " == " << b5 << " == " << b6 << " == " << b7
-    //           << " == " << b8 << " == " << b9 << " == " << b10 << " == " << b11 << std::endl;
 
     /*Testing Phase*/
     // DataDictionary test1, test2; //enter test x1 and x2
     // cin >> test1 >> test2;
-    for (int i = 0; i < dataDict.size(); i++)
+    for (int i = (dataDict.size() / 2); i < dataDict.size(); i++)
     {
         double normDemographic = (double)(dataDict[i].GetDemographicScore() - MinMax[DEMOGRAPHIC_SCORE][0]) / (double)(MinMax[DEMOGRAPHIC_SCORE][1] - MinMax[DEMOGRAPHIC_SCORE][0]);
         double normCompetition = (double)(dataDict[i].CompetitionScore() - MinMax[COMPETITION_SCORE][0]) / (double)(MinMax[COMPETITION_SCORE][1] - MinMax[COMPETITION_SCORE][0]);
-        double normSpace = (double)(dataDict[i].GetSpace() - MinMax[SPACE][0]) / (double)(MinMax[SPACE][1] - MinMax[SPACE][0]);
         double normClearence = (double)(dataDict[i].ClearenceSpace() - MinMax[CLEARENCE_SPACE][0]) / (double)(MinMax[CLEARENCE_SPACE][1] - MinMax[CLEARENCE_SPACE][0]);
+        double normSpace = (double)(dataDict[i].GetSpace() - MinMax[SPACE][0]) / (double)(MinMax[SPACE][1] - MinMax[SPACE][0]);
+        double normStaffs = (double)(dataDict[i].GetStaffNumbers() - MinMax[STAFF_NUMBERS][0]) / (double)(MinMax[STAFF_NUMBERS][1] - MinMax[STAFF_NUMBERS][0]);
+        double normCompeteNum = (double)(dataDict[i].CompetitionNumber() - MinMax[COMPETITION_NUM][0]) / (double)(MinMax[COMPETITION_NUM][1] - MinMax[COMPETITION_NUM][0]);
 
-        double pred = b0 + b1 * dataDict[i].GetStaffNumbers() + b2 * normSpace + b3 * dataDict[i].GetCarParking() + b4 * normDemographic +
-                      b5 * dataDict[i].GetLocation() + b6 * (dataDict[i].Population_40().population * 100) / totalPopulation +
-                      b7 * (dataDict[i].Population_30().population * 100) / totalPopulation + b8 * (dataDict[i].Population_20().population * 100) / totalPopulation +
-                      b9 * (dataDict[i].Population_10().population * 100) / totalPopulation + b10 * normClearence +
-                      b10 * normClearence + b11 * normCompetition; //make prediction
+        totalPopulation = dataDict[i].Population_40().population + dataDict[i].Population_30().population + dataDict[i].Population_20().population + dataDict[i].Population_10().population;
+
+        double pred = b0 + b1 * normStaffs + b2 * normSpace + b3 * dataDict[i].GetCarParking() + b4 * normDemographic +
+                      b5 * dataDict[i].GetLocation() + b6 * ((double)(dataDict[i].Population_40().population / totalPopulation)) +
+                      b7 * ((double)(dataDict[i].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[i].Population_20().population / totalPopulation)) +
+                      b9 * ((double)(dataDict[i].Population_10().population / totalPopulation)) + b10 * normClearence + b11 * normCompetition + b12 * normCompeteNum;
+        //make prediction
         cout << "The value predicted by the model= " << pred << endl;
         if (pred > 0.5)
             pred = 1;

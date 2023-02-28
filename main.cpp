@@ -164,16 +164,18 @@ int main()
             if (MinMax[CLEARENCE_SPACE][1] < dict->ClearenceSpace())
                 MinMax[CLEARENCE_SPACE][1] = dict->ClearenceSpace();
 
-            if (MinMax[COMPETITION_NUM][1] > dict->CompetitionNumber())
+            if (MinMax[COMPETITION_NUM][1] < dict->CompetitionNumber())
                 MinMax[COMPETITION_NUM][1] = dict->CompetitionNumber();
 
             if (MinMax[COMPETITION_SCORE][1] < dict->CompetitionScore())
                 MinMax[COMPETITION_SCORE][1] = dict->CompetitionScore();
 
+            //#########################################################
+
             if (MinMax[SPACE][0] > dict->GetSpace())
                 MinMax[SPACE][0] = dict->GetSpace();
 
-            if (MinMax[STAFF_NUMBERS][0] < staffNumber)
+            if (MinMax[STAFF_NUMBERS][0] > staffNumber)
                 MinMax[STAFF_NUMBERS][0] = staffNumber;
 
             if (MinMax[DEMOGRAPHIC_SCORE][0] > dict->GetDemographicScore())
@@ -198,7 +200,6 @@ int main()
     }
     else
         cout << "Could not open the file\n";
-
 
     train(dictList, MinMax);
 
