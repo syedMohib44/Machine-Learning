@@ -97,8 +97,8 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
         b8 = b8 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_20().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
         b9 = b9 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_10().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
         b10 = b10 + alpha * err * pred * (1 - pred) * normClearence;                                                      //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b11 = b11 - alpha * err * pred * (1 - pred) * normCompetition;                                                    //updating b2
-        b12 = b12 - alpha * err * pred * (1 - pred) * normCompeteNum;
+        b11 = b11 + alpha * err * pred * (1 - pred) * normCompetition;                                                    //updating b2
+        b12 = b12 + alpha * err * pred * (1 - pred) * normCompeteNum;
         // cout << "B0=" << b0 << " "
         //      << "B1=" << b1 << " "
         //      << "B2=" << b2 << " error=" << err << endl; // printing values after every step
