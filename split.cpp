@@ -20,3 +20,9 @@ size_t split(const std::string &txt, std::vector<std::string> &strs, char ch)
 
     return strs.size();
 }
+
+std::string removeSpaces(std::string input)
+{
+    input.erase(std::remove(input.begin(), input.end(), ' '), input.end());
+    return input;
+}

@@ -6,7 +6,7 @@ DataDictionary::DataDictionary(char *_town, unsigned int _storeId,
                                unsigned int _space,
                                bool _carParking,
                                unsigned int _demographicScore,
-                               Location _location,
+                            //    Location _location,
                                Population *_populations,
                                unsigned int _storeAge,
                                unsigned int _clearenceSpace,
@@ -21,7 +21,7 @@ DataDictionary::DataDictionary(char *_town, unsigned int _storeId,
     space = _space;
     carParking = _carParking;
     demographicScore = _demographicScore;
-    location = _location;
+    // location = _location;
     populations = _populations;
     storeAge = _storeAge;
     clearenceSpace = _clearenceSpace;
@@ -40,7 +40,7 @@ void DataDictionary::setData(char *_town, unsigned int _storeId,
                              unsigned int _space,
                              bool _carParking,
                              unsigned int _demographicScore,
-                             Location _location,
+                            //  Location _location,
                              Population *_populations,
                              unsigned int _storeAge,
                              unsigned int _clearenceSpace,
@@ -55,7 +55,7 @@ void DataDictionary::setData(char *_town, unsigned int _storeId,
     space = _space;
     carParking = _carParking;
     demographicScore = _demographicScore;
-    location = _location;
+    // location = _location;
     populations = _populations;
     storeAge = _storeAge;
     clearenceSpace = _clearenceSpace;
@@ -71,7 +71,7 @@ unsigned int DataDictionary::GetStaffNumbers() { return staffNumbers; }
 unsigned int DataDictionary::GetSpace() { return space; }
 bool DataDictionary::GetCarParking() { return carParking; }
 unsigned int DataDictionary::GetDemographicScore() { return demographicScore; }
-Location DataDictionary::GetLocation() { return location; }
+// Location DataDictionary::GetLocation() { return location; }
 unsigned int DataDictionary::GetStoreAge() { return storeAge; }
 unsigned int DataDictionary::ClearenceSpace() { return clearenceSpace; }
 unsigned int DataDictionary::CompetitionNumber() { return competitionNum; }

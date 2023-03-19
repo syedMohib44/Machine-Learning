@@ -4,9 +4,11 @@
 #include <fstream>
 #include <cmath>
 #include <map>
+#include <list>
+
 using namespace std;
 
-class Table
+class  Table
 {
 public:
     vector<string> attrName;
@@ -65,7 +67,7 @@ public:
         root.treeIndex = 0;
         tree.push_back(root);
         run(initialTable, 0);
-        printTree(0, "");
+        // printTree(0, "");
 
         cout << "<-- finish generating decision tree -->" << endl
              << endl;
@@ -74,7 +76,7 @@ public:
     string guess(vector<string> row)
     {
         string label = "";
-        int leafNode = dfs(row, 0);
+        int leafNode = bfs(row, 0);
         if (leafNode == -1)
         {
             return "dfs failed";
@@ -95,10 +97,41 @@ public:
         for (int i = 0; i < tree[here].children.size(); i++)
         {
             int next = tree[here].children[i];
+            // std::cout << here << " ===  " << std::endl;
 
             if (row[criteriaAttrIndex] == tree[next].attrValue)
             {
                 return dfs(row, next);
+            }
+        }
+        return -1;
+    }
+
+    int bfs(vector<string> &row, int here)
+    {
+        list<int> queue;
+
+        int criteriaAttrIndex = tree[here].criteriaAttrIndex;
+        int next = tree[here].children[0];
+        int newHere = here;
+        queue.push_back(next);
+
+        while (!queue.empty())
+        {
+            if (tree[newHere].isLeaf)
+            {
+                return newHere;
+            }
+            next = queue.front();
+            queue.pop_front();
+            for (int i = 0; i < tree[newHere].children.size(); i++)
+            {
+                next = tree[here].children[i];
+                if (row[criteriaAttrIndex] == tree[next].attrValue)
+                {
+                    queue.push_back(next);
+                    newHere = next;
+                }
             }
         }
         return -1;
@@ -243,7 +276,6 @@ public:
         for (auto iter = labelCount.begin(); iter != labelCount.end(); iter++)
         {
             double p = (double)iter->second / itemCount;
-
             ret += -1.0 * p * log(p) / log(2);
         }
 
@@ -334,9 +366,10 @@ class InputReader
 private:
     ifstream fin;
     Table table;
+    unsigned int line = 0;
 
 public:
-    InputReader(string filename)
+    InputReader(string filename, unsigned int startLine = 0, unsigned int endLine = 0)
     {
         fin.open(filename);
         if (!fin)
@@ -344,14 +377,19 @@ public:
             cout << filename << " file could not be opened\n";
             exit(0);
         }
-        parse();
+        parse(startLine, endLine);
     }
-    void parse()
+    void parse(unsigned int startLine = 0, unsigned int endLine = 0)
     {
         string str;
         bool isAttrName = true;
         while (!getline(fin, str).eof())
         {
+            if (endLine != 0 && line >= endLine)
+                return;
+            line++;
+            if (startLine >= line)
+                continue;
             vector<string> row;
             int pre = 0;
             for (int i = 0; i < str.size(); i++)
@@ -430,11 +468,11 @@ int main(int argc, const char *argv[])
     // }
 
     // string trainFileName = argv[1];
-    InputReader trainInputReader("storedata.csv");
+    InputReader trainInputReader("storedata.csv", 0, 0);
     DecisionTree decisionTree(trainInputReader.getTable());
 
     // string testFileName = argv[2];
-    InputReader testInputReader("storedata.csv");
+    InputReader testInputReader("storedata.csv", 0, 10);
     Table test = testInputReader.getTable();
 
     string resultFileName = "result.csv";
@@ -455,11 +493,16 @@ int main(int argc, const char *argv[])
 
     InputReader answerInputReader("result.csv");
     Table answer = answerInputReader.getTable();
+
+    InputReader testInputReader2("storedata.csv", 11, 21);
+    Table test1 = testInputReader2.getTable();
+
     int totalCount = (int)answer.data.size();
     int hitCount = 0;
     for (int i = 0; i < test.data.size(); i++)
     {
-        if (answer.data[i].back() == decisionTree.guess(test.data[i]))
+        std::cout << answer.data[i].back()[0] << " ========== " << decisionTree.guess(test1.data[i])[0] << std::endl;
+        if (answer.data[i].back()[0] == decisionTree.guess(test1.data[i])[0])
         {
             hitCount++;
         }

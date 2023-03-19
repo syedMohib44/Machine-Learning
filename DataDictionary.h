@@ -1,13 +1,13 @@
 //REF: https://www.analyticsvidhya.com/blog/2020/04/machine-learning-using-c-linear-logistic-regression/
 
 #include <unordered_map>
-enum Location
-{
-    ShoppingCentre = 4,
-    HighStreet = 2,
-    RetailPark = 3,
-    Village = 1
-};
+// enum Location
+// {
+//     ShoppingCentre = 4,
+//     HighStreet = 2,
+//     RetailPark = 3,
+//     Village = 1
+// };
 
 enum DataEnum
 {
@@ -18,7 +18,7 @@ enum DataEnum
     SPACE = 5,
     CAR_PARKING = 7,
     DEMOGRAPHIC_SCORE = 8,
-    LOCATION = 9,
+    // LOCATION = 9,
     POPULATION_40 = 10,
     POPULATION_30 = 11,
     POPULATION_20 = 12,
@@ -51,7 +51,7 @@ public:
                             unsigned int _space,
                             bool _carParking,
                             unsigned int _demographicScore,
-                            Location _location,
+                            // Location _location,
                             Population *_populations,
                             unsigned int _storeAge,
                             unsigned int _clearenceSpace,
@@ -73,7 +73,7 @@ public:
                  unsigned int _space,
                  bool _carParking,
                  unsigned int _demographicScore,
-                 Location _location,
+                 //  Location _location,
                  Population *_populations,
                  unsigned int _storeAge,
                  unsigned int _clearenceSpace,
@@ -87,7 +87,7 @@ public:
     unsigned int GetSpace();
     bool GetCarParking();
     unsigned int GetDemographicScore();
-    Location GetLocation();
+    // Location GetLocation();
     unsigned int GetStoreAge();
     unsigned int ClearenceSpace();
     unsigned int CompetitionNumber();
@@ -106,7 +106,7 @@ private:
     unsigned int space;
     bool carParking;
     unsigned int demographicScore;
-    Location location;
+    // Location location;
     unsigned int storeAge;
     unsigned int clearenceSpace;
     unsigned int competitionNum;

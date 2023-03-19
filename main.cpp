@@ -5,12 +5,16 @@
 #include <vector>
 #include <sstream>
 #include "split.cpp"
-// #include "DataDictionary.cpp"
+#include "DataDictionary.cpp"
 #include "LogesticRegression.cpp"
+#include "histrogram.cpp"
+// #include "./NN/src/neuralmain.cpp"
 
 int main()
 {
     string fname = "storedata.csv";
+    string n_fname = "new_storedata.csv";
+
     // cout << "Enter the file name: ";
     // cin >> fname;
 
@@ -21,8 +25,14 @@ int main()
     std::vector<std::string> words;
     std::string line, word;
 
-    fstream file(fname, ios::in);
+    std::remove_copy_if(
+        std::istreambuf_iterator<char>(std::ifstream(fname).rdbuf()),
+        std::istreambuf_iterator<char>(),
+        std::ostreambuf_iterator<char>(std::ofstream(n_fname).rdbuf()),
+        [](unsigned char c)
+        { return std::isspace(c) && c != '\n'; });
 
+    fstream file(n_fname, ios::in);
     // alternative
     // fstream file;
     // file.open(fname, ios::in);
@@ -78,23 +88,23 @@ int main()
             // HighStreet = 1,
             // RetailPark = 3,
             // Village = 4
-            Location location;
+            // Location location;
             bool carParking = false;
             bool performance = false;
 
-            if (words[LOCATION] == "Shopping Centre")
-                location = ShoppingCentre;
-            else if (words[LOCATION] == "High Street")
-                location = HighStreet;
-            else if (words[LOCATION] == "Retail Park")
-                location = RetailPark;
-            else if (words[LOCATION] == "Village")
-                location = Village;
+            // if (words[LOCATION] == "Shopping Centre")
+            //     location = ShoppingCentre;
+            // else if (words[LOCATION] == "High Street")
+            //     location = HighStreet;
+            // else if (words[LOCATION] == "Retail Park")
+            //     location = RetailPark;
+            // else if (words[LOCATION] == "Village")
+            //     location = Village;
 
             if (std::toupper(words[CAR_PARKING][0]) == 'Y')
                 carParking = true;
 
-            if (std::toupper(words[PERFORMANCE][0]) == 'G')
+            if (std::toupper(words[PERFORMANCE][0]) == 'GOOD')
                 performance = true;
             int staffNumber = std::stoi(words[STAFF_NUMBERS]);
             if (staffNumber < 0)
@@ -102,9 +112,14 @@ int main()
             //Doing this because of this article https://towardsdatascience.com/multivariate-logistic-regression-in-python-7c6255a286ec
             //TODO: Have to assign all min and max value like this
 
+            // DataDictionary *dict = new DataDictionary((char *)words[TOWN].c_str(), std::strtoul(words[STORE_ID].c_str(), NULL, 0), (char *)words[MANAGER_NAME].c_str(), staffNumber,
+            //                                           std::strtoul(words[SPACE].c_str(), NULL, 0), carParking, std::strtoul(words[DEMOGRAPHIC_SCORE].c_str(), NULL, 0),
+            //                                           location, populations, std::strtoul(words[STORE_AGE].c_str(), NULL, 0), std::strtoul(words[CLEARENCE_SPACE].c_str(), NULL, 0),
+            //                                           std::strtoul(words[COMPETITION_NUM].c_str(), NULL, 0), std::strtoul(words[COMPETITION_SCORE].c_str(), NULL, 0), performance);
+
             DataDictionary *dict = new DataDictionary((char *)words[TOWN].c_str(), std::strtoul(words[STORE_ID].c_str(), NULL, 0), (char *)words[MANAGER_NAME].c_str(), staffNumber,
                                                       std::strtoul(words[SPACE].c_str(), NULL, 0), carParking, std::strtoul(words[DEMOGRAPHIC_SCORE].c_str(), NULL, 0),
-                                                      location, populations, std::strtoul(words[STORE_AGE].c_str(), NULL, 0), std::strtoul(words[CLEARENCE_SPACE].c_str(), NULL, 0),
+                                                      populations, std::strtoul(words[STORE_AGE].c_str(), NULL, 0), std::strtoul(words[CLEARENCE_SPACE].c_str(), NULL, 0),
                                                       std::strtoul(words[COMPETITION_NUM].c_str(), NULL, 0), std::strtoul(words[COMPETITION_SCORE].c_str(), NULL, 0), performance);
 
             if (*MinMax[SPACE] == 0)
@@ -201,7 +216,9 @@ int main()
     else
         cout << "Could not open the file\n";
 
-    train(dictList, MinMax);
+    // train(dictList, MinMax);
+    histo();
+    // trainNN(dictList);
 
     return 0;
 }

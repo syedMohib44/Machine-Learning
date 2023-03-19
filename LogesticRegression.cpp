@@ -1,10 +1,10 @@
 //https://github.com/yacineMahdid/artificial-intelligence-and-machine-learning/blob/master/linear_regression_in_cpp/main.cpp
-
+//https://machinelearningmastery.com/logistic-regression-tutorial-for-machine-learning/
 #include <iostream>
 #include <math.h>
 #include <vector>
 #include <stdlib.h>
-#include "DataDictionary.cpp"
+// #include "DataDictionary.cpp"
 
 using namespace std;
 bool custom_sort(double a, double b) /* this custom sort function is defined to 
@@ -18,11 +18,6 @@ bool custom_sort(double a, double b) /* this custom sort function is defined to
 const uint epoch = 4;
 void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, unsigned int[2]> &MinMax)
 {
-
-    /*Intialization Phase*/
-    double x1[] = {2.7810836, 1.465489372, 3.396561688, 1.38807019, 3.06407232, 7.627531214, 5.332441248, 6.922596716, 8.675418651, 7.673756466};
-    double x2[] = {2.550537003, 2.362125076, 4.400293529, 1.850220317, 3.005305973, 2.759262235, 2.088626775, 1.77106367, -0.2420686549, 3.508563011};
-    double y[] = {0, 0, 0, 0, 0, 1, 1, 1, 1, 1}; //Would be performance good or bad as bool 0 / 1
 
     vector<double> error; // for storing the error values
     double err;           // for calculating error on each stage
@@ -40,7 +35,7 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
     double b11 = 0;       // initializing b11
     double b12 = 0;
 
-    double alpha = 0.01; // initializing our learning rate
+    double alpha = 0.18; // initializing our learning rate
     double e = 2.71828;
 
     // town = _town;
@@ -59,10 +54,11 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
     // performance = _performance;
     /*Training Phase*/
     double totalPopulation = 0;
-    for (int i = 0; i < (dataDict.size() / 2) * epoch; i++)
+    cout << dataDict.size();
+    for (int i = 0; i < 100 * epoch; i++)
     {
         //Since there are 10 values in our dataset and we want to run for 4 epochs so total for loop run 40 times
-        int idx = i % (dataDict.size() / 2); //for accessing index after every epoch
+        int idx = i % 100; //for accessing index after every epoch
         double normDemographic = (double)(dataDict[idx].GetDemographicScore() - MinMax[DEMOGRAPHIC_SCORE][0]) / (double)(MinMax[DEMOGRAPHIC_SCORE][1] - MinMax[DEMOGRAPHIC_SCORE][0]);
         double normCompetition = (double)(dataDict[idx].CompetitionScore() - MinMax[COMPETITION_SCORE][0]) / (double)(MinMax[COMPETITION_SCORE][1] - MinMax[COMPETITION_SCORE][0]);
         double normSpace = (double)(dataDict[idx].GetSpace() - MinMax[SPACE][0]) / (double)(MinMax[SPACE][1] - MinMax[SPACE][0]);
@@ -76,22 +72,26 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
         // double population10Avg = dataDict[idx].Population_10().population / dataDict[idx].Population_10().distanceInMins;
         totalPopulation = dataDict[idx].Population_40().population + dataDict[idx].Population_30().population + dataDict[idx].Population_20().population + dataDict[idx].Population_10().population;
 
+        // TODO: Can put log here instead of normalization
         double p = -(b0 + b1 * normStaffs + b2 * normSpace + b3 * dataDict[idx].GetCarParking() + b4 * normDemographic +
-                     b5 * dataDict[idx].GetLocation() + b6 * ((double)(dataDict[idx].Population_40().population / totalPopulation)) +
-                     b7 * ((double)(dataDict[idx].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[idx].Population_20().population / totalPopulation)) +
+                     b6 * ((double)(dataDict[idx].Population_40().population / totalPopulation)) + b7 * ((double)(dataDict[idx].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[idx].Population_20().population / totalPopulation)) +
                      b9 * ((double)(dataDict[idx].Population_10().population / totalPopulation)) + b10 * normClearence + b11 * normCompetition + b12 * normCompeteNum);
+
+        // double p = -(b0 + b1 * normStaffs + b2 * normSpace + b3 * dataDict[idx].GetCarParking() + b4 * normDemographic +
+        //              b5 * (double)log10((double)dataDict[i].GetLocation()) + b6 * ((double)(dataDict[idx].Population_40().population / totalPopulation)) +
+        //              b7 * ((double)(dataDict[idx].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[idx].Population_20().population / totalPopulation)) +
+        //              b9 * ((double)(dataDict[idx].Population_10().population / totalPopulation)) + b10 * normClearence + b11 * normCompetition + b12 * normCompeteNum);
         //making the prediction
 
         double pred = 1.0 / (1.0 + pow(e, p)); //calculating final prediction applying sigmoid
         err = dataDict[idx].GetPerformance() - pred;
 
-        // std::cout << err << std::endl;
-        b0 = b0 - alpha * err * pred * (1 - pred) * 1.0;                                                                  //updating b0 (BIAS)
-        b1 = b1 + alpha * err * pred * (1 - pred) * normStaffs;                                                           //updating b1
-        b2 = b2 + alpha * err * pred * (1 - pred) * normSpace;                                                            //updating b2
-        b3 = b3 + alpha * err * pred * (1 - pred) * dataDict[idx].GetCarParking();                                        //updating b1
-        b4 = b4 + alpha * err * pred * (1 - pred) * normDemographic;                                                      //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
-        b5 = b5 + alpha * err * pred * (1 - pred) * dataDict[idx].GetLocation();                                          //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        b0 = b0 - alpha * err * pred * (1 - pred) * 1.0;                           //updating b0 (BIAS)
+        b1 = b1 + alpha * err * pred * (1 - pred) * normStaffs;                    //updating b1
+        b2 = b2 + alpha * err * pred * (1 - pred) * normSpace;                     //updating b2
+        b3 = b3 + alpha * err * pred * (1 - pred) * dataDict[idx].GetCarParking(); //updating b1
+        b4 = b4 + alpha * err * pred * (1 - pred) * normDemographic;               //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
+        // b5 = b5 + alpha * err * pred * (1 - pred) * (double)log10((double)dataDict[i].GetLocation());                     //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
         b6 = b6 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_40().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
         b7 = b7 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_30().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
         b8 = b8 + alpha * err * pred * (1 - pred) * (double)(dataDict[idx].Population_20().population / totalPopulation); //updating b2       b1 = b1 + alpha * err * pred * (1 - pred) * x1[idx]; //updating b1
@@ -103,13 +103,14 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
         //      << "B1=" << b1 << " "
         //      << "B2=" << b2 << " error=" << err << endl; // printing values after every step
         error.push_back(err);
+        // std::cout << pred << std::endl;
     }
     sort(error.begin(), error.end(), custom_sort); //custom sort based on absolute error difference
 
     /*Testing Phase*/
     // DataDictionary test1, test2; //enter test x1 and x2
-    // cin >> test1 >> test2;
-    for (int i = (dataDict.size() / 2); i < dataDict.size(); i++)
+    uint totalCorrect = 0;
+    for (int i = 0; i < dataDict.size(); i++)
     {
         double normDemographic = (double)(dataDict[i].GetDemographicScore() - MinMax[DEMOGRAPHIC_SCORE][0]) / (double)(MinMax[DEMOGRAPHIC_SCORE][1] - MinMax[DEMOGRAPHIC_SCORE][0]);
         double normCompetition = (double)(dataDict[i].CompetitionScore() - MinMax[COMPETITION_SCORE][0]) / (double)(MinMax[COMPETITION_SCORE][1] - MinMax[COMPETITION_SCORE][0]);
@@ -120,16 +121,29 @@ void train(std::vector<DataDictionary> dataDict, unordered_map<unsigned int, uns
 
         totalPopulation = dataDict[i].Population_40().population + dataDict[i].Population_30().population + dataDict[i].Population_20().population + dataDict[i].Population_10().population;
 
-        double pred = b0 + b1 * normStaffs + b2 * normSpace + b3 * dataDict[i].GetCarParking() + b4 * normDemographic +
-                      b5 * dataDict[i].GetLocation() + b6 * ((double)(dataDict[i].Population_40().population / totalPopulation)) +
-                      b7 * ((double)(dataDict[i].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[i].Population_20().population / totalPopulation)) +
-                      b9 * ((double)(dataDict[i].Population_10().population / totalPopulation)) + b10 * normClearence + b11 * normCompetition + b12 * normCompeteNum;
+        double pred = (b0 + b1 * normStaffs + b2 * normSpace + b3 * dataDict[i].GetCarParking() + b4 * normDemographic +
+                       b6 * ((double)(dataDict[i].Population_40().population / totalPopulation)) + b7 * ((double)(dataDict[i].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[i].Population_20().population / totalPopulation)) +
+                       b9 * ((double)(dataDict[i].Population_10().population / totalPopulation)) + b10 * normClearence + b11 * normCompetition + b12 * normCompeteNum);
+
+        // double pred = b0 + b1 * normStaffs + b2 * normSpace + b3 * dataDict[i].GetCarParking() + b4 * normDemographic +
+        //               b5 * (double)log10((double)dataDict[i].GetLocation()) + b6 * ((double)(dataDict[i].Population_40().population / totalPopulation)) +
+        //               b7 * ((double)(dataDict[i].Population_30().population / totalPopulation)) + b8 * ((double)(dataDict[i].Population_20().population / totalPopulation)) +
+        //               b9 * ((double)(dataDict[i].Population_10().population / totalPopulation)) + b10 * normClearence + b11 * normCompetition + b12 * normCompeteNum;
         //make prediction
-        cout << "The value predicted by the model= " << pred << endl;
+        // cout << "The value predicted by the model= " << pred << endl;
         if (pred > 0.5)
             pred = 1;
         else
             pred = 0;
-        // cout << "The class predicted by the model= " << dataDict[i].GetStoreID() << " #### " << pred << endl;
+
+        cout << "The class predicted by the model= " << dataDict[i].GetStoreID() << " #### " << pred << endl;
+        if (pred == dataDict[i].GetPerformance())
+            totalCorrect++;
     }
+    cout << "Accuracy = " << (totalCorrect * 100) / dataDict.size() << endl;
 }
+
+//Histogram Error
+//https://stackoverflow.com/questions/11774822/matplotlib-histogram-with-errorbars 
+
+//https://github.com/Saleh-I/Histogram/blob/master/Histogram/Main.cpp
